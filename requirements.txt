@@ -1,0 +1,7 @@
+Flask
+latlon
+argparse
+pyserial
+gpxpy
+requests
+
