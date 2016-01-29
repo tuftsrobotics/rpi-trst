@@ -1,21 +1,41 @@
 FROM resin/rpi-raspbian:wheezy
 
-MAINTAINER Alexander Tong <alexanderytong@gmail.com>
+MAINTAINER      Alexander Tong <alexanderytong@gmail.com>
 
-WORKDIR /root
-RUN apt-get update && apt-get install -y python python-dev python-pip git gcc make
+WORKDIR         /root
+RUN             apt-get update && apt-get install -y \
+                    gcc \
+                    make \
+                    python \
+                    python-dev \
+                    python-pip
 
-ADD requirements.txt /root/requirements.txt
+###############################################################################
 
-RUN pip install -r requirements.txt
+RUN             pip install Flask
+RUN             pip install latlon
+RUN             pip install argparse
+RUN             pip install pyserial
+RUN             pip install gpxpy
+RUN             pip install requests
 
-COPY trst /root/trst
-COPY canboat /root/canboat
+###############################################################################
 
-WORKDIR /root/canboat
+COPY            canboat /root/canboat
 
-RUN make && make install
+###############################################################################
 
-WORKDIR /root
+WORKDIR         /root/canboat
 
-CMD ["bash"]
+RUN             make -j4 && make install
+
+###############################################################################
+
+WORKDIR         /root
+RUN             apt-get -y purge \
+                    gcc \
+                    make
+RUN             apt-get -y autoremove
+RUN             rm -rf $HOME/canboat $HOME/.cache/pip/ /var/lib/apt/lists/* /tmp/*
+
+ENTRYPOINT      ["/bin/bash"]
